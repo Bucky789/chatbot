@@ -90,4 +90,9 @@ Answer:
     print("STDERR:", result.stderr)  # debug
     print("STDOUT:", result.stdout)  # debug
 
-    return {"answer": result.stdout.strip()}
+    answer = result.stdout.strip()
+
+    if not answer:
+        answer = "I don't have enough information to answer that."
+
+    return {"answer": answer}

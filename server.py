@@ -80,7 +80,7 @@ def get_context(question):
 def chat(q: Query):
     print("CHAT HIT WITH:", q.question)
 
-    tmp_out = f"/tmp/llama_out_{uuid.uuid4().hex}.txt"
+    tmp_out = os.path.expanduser(f"~/llama_out_{uuid.uuid4().hex}.txt")
 
     prompt = f"""{SYSTEM_PROMPT}
 

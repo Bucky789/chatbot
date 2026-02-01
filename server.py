@@ -66,41 +66,52 @@ for d in load_docs():
 def health():
     print("HEALTH HIT")
     return {"status": "ok"}
+    
+def get_context(question):
+    ranked = sorted(
+        [(score(c, question), c) for c in DOCS],
+        reverse=True
+    )
+    return "\n---\n".join([c for s, c in ranked if s > 0][:3])
 
 
 @app.post("/chat")
 def chat(q: Query):
     print("CHAT HIT WITH:", q.question)
-    ranked = sorted(
-        [(score(c, q.question), c) for c in DOCS],
-        reverse=True
-    )
-    context = "\n---\n".join([c for s, c in ranked if s > 0][:3])
+
+    tmp_out = f"/tmp/llama_out_{uuid.uuid4().hex}.txt"
 
     prompt = f"""{SYSTEM_PROMPT}
 
 Information:
-{context}
+{get_context(q.question)}
 
 Question: {q.question}
 Answer:
 """
 
-    result = subprocess.run(
-        BASE_CMD + ["-p", prompt],
-        stdin=subprocess.DEVNULL,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
+    cmd = (
+        f"{LLAMA_PATH} "
+        f"-m {MODEL_PATH} "
+        f"-t 4 "
+        f"-c 1024 "
+        f"--temp 0.2 "
+        f"-n 80 "
+        f"-p {repr(prompt)} "
+        f"> {tmp_out}"
     )
 
-    print("STDERR:", result.stderr)  # debug
-    print("STDOUT:", result.stdout)  # debug
+    subprocess.run(cmd, shell=True)
 
-    answer = result.stdout.strip()
+    if not os.path.exists(tmp_out):
+        return {"answer": "LLM execution failed."}
+
+    with open(tmp_out, "r") as f:
+        answer = f.read().strip()
+
+    os.remove(tmp_out)
 
     if not answer:
-        print("STDERR:", result.stderr)
         answer = "I don't have enough information to answer that."
 
     return {"answer": answer}

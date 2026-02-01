@@ -15,8 +15,8 @@ BASE_CMD = [
     "-t", "4",
     "-c", "1024",
     "--temp", "0.2",
-    "--n-predict", "80",
-    "--no-display-prompt"
+    "-n", "80",
+    "--simple-io"
 ]
 
 KNOWLEDGE_DIR = "knowledge"
@@ -82,6 +82,7 @@ Answer:
 
     result = subprocess.run(
         BASE_CMD + ["-p", prompt],
+        stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True
@@ -93,6 +94,7 @@ Answer:
     answer = result.stdout.strip()
 
     if not answer:
+        print("STDERR:", result.stderr)
         answer = "I don't have enough information to answer that."
 
     return {"answer": answer}

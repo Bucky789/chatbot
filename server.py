@@ -62,9 +62,15 @@ DOCS = []
 for d in load_docs():
     DOCS.extend(chunk(d))
 
+@app.get("/health")
+def health():
+    print("HEALTH HIT")
+    return {"status": "ok"}
+
 
 @app.post("/chat")
 def chat(q: Query):
+    print("CHAT HIT WITH:", q.question)
     ranked = sorted(
         [(score(c, q.question), c) for c in DOCS],
         reverse=True

@@ -82,9 +82,10 @@ Answer:
 """
 
     result = subprocess.run(
-        BASE_CMD + ["-p", prompt],
-        capture_output=True,
-        text=True
-    )
+    BASE_CMD + ["-p", prompt],
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
+    text=True
+)
 
     return {"answer": result.stdout.strip()}

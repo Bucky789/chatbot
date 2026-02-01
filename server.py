@@ -87,4 +87,7 @@ Answer:
         text=True
     )
 
+    print("STDERR:", result.stderr)  # debug
+    print("STDOUT:", result.stdout)  # debug
+
     return {"answer": result.stdout.strip()}

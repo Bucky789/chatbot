@@ -15,7 +15,9 @@ BASE_CMD = [
     "-t", "4",
     "-c", "1024",
     "--temp", "0.2",
-    "--n-predict", "80"
+    "--n-predict", "80",
+    "--no-display-prompt",
+    "--silent-prompt"
 ]
 
 KNOWLEDGE_DIR = "knowledge"

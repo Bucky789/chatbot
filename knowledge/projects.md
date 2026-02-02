@@ -1,5 +1,25 @@
 ## Projects
 
+### Chess Web Application
+
+I built a chess web application that runs entirely in the browser.
+
+The application allows:
+- Human vs human gameplay
+- Human vs AI gameplay
+
+Technical details:
+- Frontend built with React
+- Custom chess UI and board rendering
+- Legal move validation for all pieces
+- Detection of check, checkmate, and stalemate
+- Pawn promotion support
+- AI opponent powered by the Stockfish chess engine
+
+This project demonstrates my ability to design complex game logic and integrate third-party engines into a web application.
+
+---
+
 ### ATS Resume Checker Chrome Extension
 
 I built an ATS resume checker as a Chrome extension to remove friction from the job application process.

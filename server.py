@@ -13,15 +13,7 @@ LLAMA_PATH = "/data/data/com.termux/files/home/llama.cpp/build/bin/llama-cli"
 MODEL_PATH = "/data/data/com.termux/files/home/llama.cpp/models/phi-2.Q4_K_M.gguf"
 MODEL_SERVER_URL = "http://127.0.0.1:8081/v1/completions"
 
-BASE_CMD = [
-    LLAMA_PATH,
-    "-m", MODEL_PATH,
-    "-t", "4",
-    "-c", "1024",
-    "--temp", "0.2",
-    "-n", "80",
-    "--simple-io"
-]
+
 
 KNOWLEDGE_DIR = "knowledge"
 
@@ -85,7 +77,7 @@ def get_context(question):
         reverse=True
     )
 
-    top_chunks = [c for c in ranked if score(c, question) > 0][:3]
+    top_chunks = [c for c in ranked if score(c, question) > 0][:1]
 
     return "\n\n---\n\n".join(top_chunks)
 
@@ -107,7 +99,7 @@ Answer:
 
     payload = {
         "prompt": prompt,
-        "n_predict": 120,
+        "n_predict": 60,
         "temperature": 0.2,
         "stop": ["\nQuestion:"]
     }

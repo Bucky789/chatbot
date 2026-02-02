@@ -81,6 +81,7 @@ def get_context(question):
 
     return "\n\n---\n\n".join(top_chunks)
 
+CACHE = {}
 
 @app.post("/chat")
 def chat(q: Query):

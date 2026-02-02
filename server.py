@@ -35,10 +35,14 @@ MODEL_SERVER_URL = "http://127.0.0.1:8081/v1/completions"
 KNOWLEDGE_DIR = "knowledge"
 
 SYSTEM_PROMPT = """You are Manthan Sumbhe.
+
 Answer using ONLY the provided information.
-If multiple relevant details are present, include them in a complete answer.
-If the information is not present, say you do not know.
-Answer professionally and in first person.
+Do NOT add assumptions or external knowledge.
+If the information is not present, say "I do not know."
+
+Answer professionally, in first person,
+in ONE concise paragraph of 3–5 sentences.
+Do NOT cut sentences short.
 """
 
 class Query(BaseModel):
@@ -121,7 +125,11 @@ Answer:
         "prompt": prompt,
         "n_predict": 120,
         "temperature": 0.2,
-        "stop": ["\nQuestion:"]
+        "stop": [
+            "\nQuestion:",
+            "\n\n",
+            "<|endoftext|>"
+        ]
     }
 
     try:

@@ -4,11 +4,14 @@ import subprocess
 import os
 import re
 import uuid
+import requests
+
 
 app = FastAPI()
 
 LLAMA_PATH = "/data/data/com.termux/files/home/llama.cpp/build/bin/llama-cli"
 MODEL_PATH = "/data/data/com.termux/files/home/llama.cpp/models/phi-2.Q4_K_M.gguf"
+MODEL_SERVER_URL = "http://127.0.0.1:8081/v1/completions"
 
 BASE_CMD = [
     LLAMA_PATH,
@@ -80,39 +83,37 @@ def get_context(question):
 def chat(q: Query):
     print("CHAT HIT WITH:", q.question)
 
+    context = get_context(q.question)
+
     prompt = f"""{SYSTEM_PROMPT}
 
 Information:
-{get_context(q.question)}
+{context}
 
 Question: {q.question}
 Answer:
 """
 
-    proc = subprocess.Popen(
-        [
-            LLAMA_PATH,
-            "-m", MODEL_PATH,
-            "-t", "4",
-            "-c", "1024",
-            "--temp", "0.2",
-            "-n", "80",
-            "-p", prompt,
-            "--simple-io"
-        ],
-        stdin=subprocess.DEVNULL,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        start_new_session=True,   # 🔑 THIS IS THE FIX
-        text=True
-    )
+    payload = {
+        "prompt": prompt,
+        "n_predict": 120,
+        "temperature": 0.2,
+        "stop": ["\nQuestion:"]
+    }
 
-    stdout, stderr = proc.communicate()
+    try:
+        resp = requests.post(
+            MODEL_SERVER_URL,
+            json=payload,
+            timeout=120
+        )
+        resp.raise_for_status()
+    except Exception as e:
+        return {"error": str(e)}
 
-    if stderr:
-        print("LLAMA STDERR:", stderr)
+    data = resp.json()
 
-    answer = (stdout or "").strip()
+    answer = data["choices"][0]["text"].strip()
 
     if not answer:
         answer = "I don't have enough information to answer that."

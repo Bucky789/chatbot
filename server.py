@@ -85,6 +85,8 @@ def get_context(question):
 @app.post("/chat")
 def chat(q: Query):
     print("CHAT HIT WITH:", q.question)
+    if q.question in CACHE:
+        return {"answer": CACHE[q.question]}
 
     context = get_context(q.question)
 
@@ -117,7 +119,7 @@ Answer:
     data = resp.json()
 
     answer = data["choices"][0]["text"].strip()
-
+    CACHE[q.question] = answer
     if not answer:
         answer = "I don't have enough information to answer that."
 

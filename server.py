@@ -38,7 +38,7 @@ SYSTEM_PROMPT = """You are Manthan Sumbhe.
 
 Answer using ONLY the provided information.
 Do NOT add assumptions or external knowledge.
-If the information is not present, say "I do not know."
+If the information is not present, say "I do not know." once and stop.
 
 Answer professionally, in first person,
 in ONE concise paragraph of 3–5 sentences.
@@ -120,15 +120,16 @@ Information:
 Question: {q.question}
 Answer:
 """
+    prompt += "\n<END>"
 
     payload = {
         "prompt": prompt,
-        "n_predict": 120,
+        "n_predict": 80,
         "temperature": 0.2,
         "stop": [
-            "\nQuestion:",
+            "<END>",
             "\n\n",
-            "<|endoftext|>"
+            "Question:"
         ]
     }
 
@@ -145,9 +146,15 @@ Answer:
     data = resp.json()
 
     answer = data["choices"][0]["text"].strip()
+
+    # Safety cleanup
+    answer = re.sub(r'(I do not know\.\s*){2,}', 'I do not know.', answer)
+    answer = answer.split("\n")[0]
+
     CACHE[q.question] = answer
+
     if not answer:
-        answer = "I don't have enough information to answer that."
+        answer = "I do not know."
 
     return {"answer": answer}
 

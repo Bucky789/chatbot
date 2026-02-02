@@ -26,7 +26,8 @@ BASE_CMD = [
 KNOWLEDGE_DIR = "knowledge"
 
 SYSTEM_PROMPT = """You are Manthan Sumbhe.
-Answer ONLY using the provided information.
+Answer using ONLY the provided information.
+If multiple relevant details are present, include them in a complete answer.
 If the information is not present, say you do not know.
 Answer professionally and in first person.
 """
@@ -44,15 +45,21 @@ def load_docs():
     return docs
 
 
-def chunk(text, size=500):
-    chunks, cur = [], ""
+def chunk_by_headers(text):
+    chunks = []
+    current = ""
+
     for line in text.splitlines():
-        if len(cur) + len(line) > size:
-            chunks.append(cur)
-            cur = ""
-        cur += line + "\n"
-    if cur:
-        chunks.append(cur)
+        if line.startswith("### "):
+            if current.strip():
+                chunks.append(current.strip())
+            current = line + "\n"
+        else:
+            current += line + "\n"
+
+    if current.strip():
+        chunks.append(current.strip())
+
     return chunks
 
 
@@ -64,7 +71,7 @@ def score(chunk, query):
 
 DOCS = []
 for d in load_docs():
-    DOCS.extend(chunk(d))
+    DOCS.extend(chunk_by_headers(d))
 
 @app.get("/health")
 def health():
@@ -73,10 +80,14 @@ def health():
     
 def get_context(question):
     ranked = sorted(
-        [(score(c, question), c) for c in DOCS],
+        DOCS,
+        key=lambda c: (score(c, question), len(c)),
         reverse=True
     )
-    return "\n---\n".join([c for s, c in ranked if s > 0][:3])
+
+    top_chunks = [c for c in ranked if score(c, question) > 0][:3]
+
+    return "\n\n---\n\n".join(top_chunks)
 
 
 @app.post("/chat")

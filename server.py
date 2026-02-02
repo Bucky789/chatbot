@@ -5,7 +5,24 @@ import os
 import re
 import uuid
 import requests
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import APIKeyHeader
 
+
+API_KEY = os.getenv("CHATBOT_API_KEY")
+API_KEY_NAME = "X-API-Key"
+
+if not API_KEY:
+    raise RuntimeError("CHATBOT_API_KEY not set")
+
+api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
+
+def verify_api_key(api_key: str = Depends(api_key_header)):
+    if api_key != API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing API key"
+        )
 
 app = FastAPI()
 
@@ -77,14 +94,14 @@ def get_context(question):
         reverse=True
     )
 
-    top_chunks = [c for c in ranked if score(c, question) > 0][:1]
+    top_chunks = [c for c in ranked if score(c, question) > 0][:3]
 
     return "\n\n---\n\n".join(top_chunks)
 
 CACHE = {}
 
 @app.post("/chat")
-def chat(q: Query):
+def chat(q: Query, _: str = Depends(verify_api_key)):
     print("CHAT HIT WITH:", q.question)
     if q.question in CACHE:
         return {"answer": CACHE[q.question]}
@@ -102,7 +119,7 @@ Answer:
 
     payload = {
         "prompt": prompt,
-        "n_predict": 60,
+        "n_predict": 120,
         "temperature": 0.2,
         "stop": ["\nQuestion:"]
     }

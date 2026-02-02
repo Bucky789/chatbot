@@ -80,8 +80,6 @@ def get_context(question):
 def chat(q: Query):
     print("CHAT HIT WITH:", q.question)
 
-    tmp_out = os.path.expanduser(f"~/llama_out_{uuid.uuid4().hex}.txt")
-
     prompt = f"""{SYSTEM_PROMPT}
 
 Information:
@@ -91,28 +89,33 @@ Question: {q.question}
 Answer:
 """
 
-    cmd = (
-        f"{LLAMA_PATH} "
-        f"-m {MODEL_PATH} "
-        f"-t 4 "
-        f"-c 1024 "
-        f"--temp 0.2 "
-        f"-n 80 "
-        f"-p {repr(prompt)} "
-        f"> {tmp_out}"
+    proc = subprocess.Popen(
+        [
+            LLAMA_PATH,
+            "-m", MODEL_PATH,
+            "-t", "4",
+            "-c", "1024",
+            "--temp", "0.2",
+            "-n", "80",
+            "-p", prompt,
+            "--simple-io"
+        ],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        start_new_session=True,   # 🔑 THIS IS THE FIX
+        text=True
     )
 
-    subprocess.run(cmd, shell=True)
+    stdout, stderr = proc.communicate()
 
-    if not os.path.exists(tmp_out):
-        return {"answer": "LLM execution failed."}
+    if stderr:
+        print("LLAMA STDERR:", stderr)
 
-    with open(tmp_out, "r") as f:
-        answer = f.read().strip()
-
-    os.remove(tmp_out)
+    answer = (stdout or "").strip()
 
     if not answer:
         answer = "I don't have enough information to answer that."
 
     return {"answer": answer}
+

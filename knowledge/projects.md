@@ -1,6 +1,6 @@
 ## Projects
 
-### Chess Web Application
+- Chess Web Application
 
 I built a chess web application that runs entirely in the browser.
 
@@ -20,7 +20,7 @@ This project demonstrates my ability to design complex game logic and integrate 
 
 ---
 
-### ATS Resume Checker Chrome Extension
+- ATS Resume Checker Chrome Extension
 
 I built an ATS resume checker as a Chrome extension to remove friction from the job application process.
 
@@ -44,7 +44,7 @@ This project taught me how to design systems around AI responsibly, focusing on 
 
 ---
 
-### AI Voice Conversion Studio
+- AI Voice Conversion Studio
 
 I built a full-stack AI music web application that converts vocals from one voice to another using deep learning.
 
@@ -70,7 +70,7 @@ This project gave me hands-on experience building real-time ML pipelines and int
 
 ---
 
-### Minecraft Manhunt Plugin (Java)
+- Minecraft Manhunt Plugin (Java)
 
 I built a custom Minecraft Manhunt plugin inspired by Dream’s Manhunt gameplay.
 

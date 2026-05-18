@@ -1,9 +1,9 @@
 ## Experience
 
-I have over two years of experience working with Java and Swift.
+I have over two years of professional experience working with Java and Swift.
 
 Backend and full-stack experience:
-- Built REST APIs using Java and Spring Boot
+- Built REST APIs using Java and Spring Boot using Microservices Architecture
 - Developed full-stack applications using Spring Boot and Angular
 - Worked with SQL databases for data persistence
 
